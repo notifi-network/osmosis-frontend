@@ -31,6 +31,7 @@ export type SpriteIconId =
   | "twitter"
   | "medium"
   | "sandbox"
+  | "bell"
   | "alert-triangle"
   | "wallet"
   | "left-right"
