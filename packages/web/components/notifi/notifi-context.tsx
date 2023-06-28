@@ -1,37 +1,22 @@
 import { Keplr, Key } from "@keplr-wallet/types";
-import {
-  newFrontendClient,
-  NotifiFrontendClient,
-} from "@notifi-network/notifi-frontend-client";
+import { NotifiContext } from "@notifi-network/notifi-react-card";
 import React, {
-  createContext,
   FunctionComponent,
   PropsWithChildren,
-  useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
 import { useKeplr } from "~/hooks";
 import { useStore } from "~/stores";
 
+import { NotifiConfigContext } from "./notifi-config-context";
+
 interface RequiredInfo {
   key: Key;
   keplr: Keplr;
   chainId: string;
 }
-
-interface NotifiContextData {
-  client: NotifiFrontendClient;
-  info: RequiredInfo;
-}
-
-const NotifiContext = createContext<NotifiContextData | undefined>(undefined);
-
-export const useNotifiContext: () => NotifiContextData | undefined = () => {
-  return useContext(NotifiContext);
-};
 
 export const NotifiContextProvider: FunctionComponent<
   PropsWithChildren<{}>
@@ -45,34 +30,34 @@ export const NotifiContextProvider: FunctionComponent<
     getRequiredInfo(chainId, keplr.getKeplr).then((info) => setInfo(info));
   }, [keplr, chainId]);
 
-  const client = useMemo(() => {
-    if (info === undefined) {
-      return undefined;
-    }
-
-    const { key } = info;
-
-    return newFrontendClient({
-      account: {
-        address: key.bech32Address,
-        publicKey: Buffer.from(key.pubKey).toString("base64"),
-      },
-      tenantId: "junitest.xyz",
-      env: "Development",
-      walletBlockchain: "OSMOSIS",
-    });
-  }, [info]);
-
-  let value: NotifiContextData | undefined = undefined;
-  if (info !== undefined && client !== undefined) {
-    value = {
-      client,
-      info,
-    };
+  if (info === undefined) {
+    return <>{children}</>;
   }
 
   return (
-    <NotifiContext.Provider value={value}>{children}</NotifiContext.Provider>
+    <NotifiContext
+      env="Development"
+      walletBlockchain="OSMOSIS"
+      dappAddress="junitest.xyz"
+      accountAddress={info.key.bech32Address}
+      walletPublicKey={Buffer.from(info.key.pubKey).toString("base64")}
+      signMessage={async (message: Uint8Array): Promise<Uint8Array> => {
+        const result = await info.keplr.signArbitrary(
+          info.chainId,
+          info.key.bech32Address,
+          message
+        );
+        return Buffer.from(result.signature, "base64");
+      }}
+      enableCanary
+    >
+      <NotifiConfigContext
+        type="SUBSCRIPTION_CARD"
+        id="7f8cf1f9c1074c07a67b63e3bcdf7c3c"
+      >
+        {children}
+      </NotifiConfigContext>
+    </NotifiContext>
   );
 };
 

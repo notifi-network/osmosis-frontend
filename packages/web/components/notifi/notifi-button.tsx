@@ -3,7 +3,7 @@ import React, { ComponentProps, FunctionComponent } from "react";
 import { Icon } from "../assets";
 import { Button } from "../buttons";
 import IconButton from "../buttons/icon-button";
-import { useNotifiContext } from "./notifi-context";
+import { useNotifiConfig } from "./notifi-config-context";
 
 export interface NotifiButtonProps {
   className?: string;
@@ -26,7 +26,7 @@ export const NotifiButton: FunctionComponent<NotifiButtonProps> = ({
   className,
   requestOpen,
 }: NotifiButtonProps) => {
-  const context = useNotifiContext();
+  const context = useNotifiConfig();
   if (context === undefined) {
     return <NotifiIconButton className={className} disabled />;
   }
