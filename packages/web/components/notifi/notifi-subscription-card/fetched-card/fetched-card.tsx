@@ -2,6 +2,7 @@ import { CardConfigItemV1 } from "@notifi-network/notifi-frontend-client";
 import { useNotifiSubscriptionContext } from "@notifi-network/notifi-react-card";
 import { FunctionComponent } from "react";
 
+import { EditView } from "./edit-view";
 import { HistoryView } from "./history-view";
 import { SignupView } from "./signup-view";
 
@@ -15,7 +16,7 @@ export const FetchedCard: FunctionComponent<{
   } else if (cardView.state === "signup") {
     return <SignupView />;
   } else if (cardView.state === "edit") {
-    return <HistoryView />;
+    return <EditView />;
   } else {
     return null;
   }
