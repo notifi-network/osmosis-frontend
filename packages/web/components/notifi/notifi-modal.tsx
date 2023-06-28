@@ -9,7 +9,9 @@ export const NotifiModal: FunctionComponent<ModalBaseProps> = (props) => {
   const t = useTranslation();
   return (
     <ModalBase {...props} title={t("notifi.title")}>
-      <NotifiSubscriptionCard />
+      <div className="mt-4 flex max-h-64 flex-col overflow-y-auto">
+        <NotifiSubscriptionCard />
+      </div>
     </ModalBase>
   );
 };

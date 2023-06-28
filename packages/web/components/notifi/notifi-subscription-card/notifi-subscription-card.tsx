@@ -1,5 +1,8 @@
-import { useNotifiClientContext } from "@notifi-network/notifi-react-card";
-import { FunctionComponent, useMemo } from "react";
+import {
+  useNotifiClientContext,
+  useNotifiSubscriptionContext,
+} from "@notifi-network/notifi-react-card";
+import { FunctionComponent, useEffect, useMemo, useRef } from "react";
 
 import { useNotifiConfig } from "../notifi-config-context";
 import { ErrorCard } from "./error-card";
@@ -24,7 +27,24 @@ export const NotifiSubscriptionCard: FunctionComponent = () => {
 
   const config = useNotifiConfig();
 
-  if (isTokenExpired) {
+  const { cardView, setCardView } = useNotifiSubscriptionContext();
+  const firstLoadRef = useRef(false);
+
+  useEffect(() => {
+    if (frontendClient.userState !== null && firstLoadRef.current !== true) {
+      firstLoadRef.current = true;
+
+      if (frontendClient.userState.status === "authenticated") {
+        setCardView({ state: "history" });
+      } else if (frontendClient.userState.status === "expired") {
+        setCardView({ state: "expired" });
+      } else {
+        setCardView({ state: "signup" });
+      }
+    }
+  }, [frontendClient.userState, setCardView]);
+
+  if (isTokenExpired || cardView.state === "expired") {
     return <ExpiredCard />;
   }
 
@@ -32,6 +52,8 @@ export const NotifiSubscriptionCard: FunctionComponent = () => {
     return <LoadingCard />;
   } else if (config.state === "error") {
     return <ErrorCard error={config.reason} />;
+  } else if (cardView.state === "error") {
+    return <ErrorCard error={cardView.reason} />;
   } else {
     return <FetchedCard data={config.data} />;
   }
