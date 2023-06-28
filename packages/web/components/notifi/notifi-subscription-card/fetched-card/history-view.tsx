@@ -1,4 +1,3 @@
-import { NotifiFrontendClient } from "@notifi-network/notifi-frontend-client";
 import { useNotifiClientContext } from "@notifi-network/notifi-react-card";
 import {
   FunctionComponent,
@@ -10,10 +9,6 @@ import {
 
 import { HistoryEmpty } from "./history-empty";
 import { HistoryRowData, HistoryRows } from "./history-rows";
-
-type FetchParams = Parameters<
-  NotifiFrontendClient["getNotificationHistory"]
->[0];
 
 type CursorInfo = Readonly<{
   hasNextPage: boolean;
@@ -36,14 +31,26 @@ export const HistoryView: FunctionComponent = () => {
   const isQuerying = useRef(false);
 
   const getNotificationHistory = useCallback(
-    async ({ first, after }: FetchParams) => {
+    async ({ refresh }: { refresh: boolean }) => {
+      if (
+        frontendClient.userState === null ||
+        frontendClient.userState.status !== "authenticated"
+      ) {
+        return;
+      }
+
+      if (!(refresh || cursorInfo.hasNextPage)) {
+        return;
+      }
+
       if (isQuerying.current) {
         return;
       }
+
       isQuerying.current = true;
       const result = await frontendClient.getNotificationHistory({
-        first,
-        after,
+        first: MESSAGES_PER_PAGE,
+        after: refresh ? undefined : cursorInfo.endCursor,
       });
 
       const nodes = result.nodes ?? [];
@@ -53,14 +60,14 @@ export const HistoryView: FunctionComponent = () => {
       isQuerying.current = false;
       return result;
     },
-    [frontendClient]
+    [cursorInfo.endCursor, cursorInfo.hasNextPage, frontendClient]
   );
 
   useEffect(() => {
     if (fetchedRef.current !== true) {
       fetchedRef.current = true;
       getNotificationHistory({
-        first: MESSAGES_PER_PAGE,
+        refresh: true,
       });
     }
   }, [getNotificationHistory]);
