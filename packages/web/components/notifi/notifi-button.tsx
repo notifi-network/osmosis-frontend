@@ -5,8 +5,9 @@ import { Button } from "../buttons";
 import IconButton from "../buttons/icon-button";
 import { useNotifiContext } from "./notifi-context";
 
-interface Props {
+export interface NotifiButtonProps {
   className?: string;
+  requestOpen: () => void;
 }
 
 const NotifiIconButton: FunctionComponent<ComponentProps<typeof Button>> = (
@@ -21,9 +22,10 @@ const NotifiIconButton: FunctionComponent<ComponentProps<typeof Button>> = (
   );
 };
 
-export const NotifiButton: FunctionComponent<Props> = ({
+export const NotifiButton: FunctionComponent<NotifiButtonProps> = ({
   className,
-}: Props) => {
+  requestOpen,
+}: NotifiButtonProps) => {
   const context = useNotifiContext();
   if (context === undefined) {
     return <NotifiIconButton className={className} disabled />;
@@ -33,7 +35,7 @@ export const NotifiButton: FunctionComponent<Props> = ({
     <NotifiIconButton
       className={className}
       onClick={() => {
-        console.log("click");
+        requestOpen();
       }}
     />
   );

@@ -24,6 +24,7 @@ import IconButton from "../buttons/icon-button";
 import ClientOnly from "../client-only";
 import { MainMenu } from "../main-menu";
 import { Notifi } from "../notifi";
+import { NotifiModal } from "../notifi/notifi-modal";
 import { Popover } from "../popover";
 import SkeletonLoader from "../skeleton-loader";
 import { CustomClasses, MainLayoutMenu } from "../types";
@@ -54,6 +55,12 @@ export const NavBar: FunctionComponent<
     isOpen: isProfileOpen,
     onOpen: onOpenProfile,
     onClose: onCloseProfile,
+  } = useDisclosure();
+
+  const {
+    isOpen: isNotifiOpen,
+    onOpen: onOpenNotifi,
+    onClose: onCloseNotifi,
   } = useDisclosure();
 
   const closeMobileMenuRef = useRef(noop);
@@ -163,7 +170,7 @@ export const NavBar: FunctionComponent<
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3 lg:gap-2 md:hidden">
-          <Notifi className="px-3 outline-none" />
+          <Notifi className="px-3 outline-none" requestOpen={onOpenNotifi} />
           <IconButton
             aria-label="Open settings dropdown"
             icon={<Icon id="setting" width={24} height={24} />}
@@ -204,6 +211,7 @@ export const NavBar: FunctionComponent<
         onRequestClose={onCloseProfile}
         icnsName={icnsQuery?.primaryName}
       />
+      <NotifiModal isOpen={isNotifiOpen} onRequestClose={onCloseNotifi} />
     </>
   );
 });

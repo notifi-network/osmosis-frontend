@@ -1,13 +1,9 @@
 import React, { FunctionComponent } from "react";
 
-import { NotifiButton } from "./notifi-button";
+import { NotifiButton, NotifiButtonProps } from "./notifi-button";
 import { NotifiContextProvider } from "./notifi-context";
 
-interface Props {
-  className?: string;
-}
-
-export const Notifi: FunctionComponent<Props> = (props) => {
+export const Notifi: FunctionComponent<NotifiButtonProps> = (props) => {
   return (
     <NotifiContextProvider>
       <NotifiButton {...props} />
