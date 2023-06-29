@@ -1,6 +1,8 @@
 import { FunctionComponent } from "react";
 
 import { EditEmail } from "./edit-email";
+import { EditSms } from "./edit-sms";
+import { EditTelegram } from "./edit-telegram";
 
 export const EditView: FunctionComponent = () => {
   return (
@@ -9,6 +11,8 @@ export const EditView: FunctionComponent = () => {
         Add destinations for your notifications.
       </p>
       <EditEmail />
+      <EditTelegram />
+      <EditSms />
     </div>
   );
 };

@@ -33,6 +33,8 @@ export type SpriteIconId =
   | "sandbox"
   | "bell"
   | "email"
+  | "telegram"
+  | "smartphone"
   | "alert-triangle"
   | "wallet"
   | "left-right"
