@@ -4,6 +4,7 @@ import {
 } from "@notifi-network/notifi-react-card";
 import { FunctionComponent, useCallback } from "react";
 
+import { useNotifiConfig } from "../../notifi-config-context";
 import { InputWithIcon } from "./input-with-icon";
 
 export const EditEmail: FunctionComponent = () => {
@@ -12,6 +13,7 @@ export const EditEmail: FunctionComponent = () => {
   const {
     canary: { frontendClient },
   } = useNotifiClientContext();
+  const config = useNotifiConfig();
 
   const onBlur = useCallback(async () => {
     setLoading(true);
@@ -21,12 +23,22 @@ export const EditEmail: FunctionComponent = () => {
         emailAddress: email,
       });
 
+      if (config.state === "fetched") {
+        for (let i = 0, n = config.data.eventTypes.length; i < n; ++i) {
+          const row = config.data.eventTypes[i];
+          await frontendClient.ensureTargetGroup({
+            name: row.name,
+            emailAddress: email,
+          });
+        }
+      }
+
       const data = await frontendClient.fetchData();
       render(data);
     } finally {
       setLoading(false);
     }
-  }, [email, frontendClient, render, setLoading]);
+  }, [config, email, frontendClient, render, setLoading]);
 
   return (
     <InputWithIcon
