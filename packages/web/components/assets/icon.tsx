@@ -32,6 +32,7 @@ export type SpriteIconId =
   | "medium"
   | "sandbox"
   | "bell"
+  | "email"
   | "alert-triangle"
   | "wallet"
   | "left-right"
