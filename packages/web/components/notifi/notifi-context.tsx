@@ -53,7 +53,7 @@ export const NotifiContextProvider: FunctionComponent<
     >
       <NotifiConfigContext
         type="SUBSCRIPTION_CARD"
-        id="7f8cf1f9c1074c07a67b63e3bcdf7c3c"
+        id="afa2bcb3e2f1408eafb008bed44f54cd"
       >
         {children}
       </NotifiConfigContext>

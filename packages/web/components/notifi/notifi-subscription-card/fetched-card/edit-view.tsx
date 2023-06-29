@@ -1,5 +1,6 @@
 import { FunctionComponent } from "react";
 
+import { AlertList } from "./alert-list";
 import { EditEmail } from "./edit-email";
 import { EditSms } from "./edit-sms";
 import { EditTelegram } from "./edit-telegram";
@@ -13,6 +14,7 @@ export const EditView: FunctionComponent = () => {
       <EditEmail />
       <EditTelegram />
       <EditSms />
+      <AlertList />
     </div>
   );
 };
