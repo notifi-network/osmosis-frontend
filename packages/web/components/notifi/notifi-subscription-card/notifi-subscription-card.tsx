@@ -12,7 +12,7 @@ import { FetchedCard } from "./fetched-card";
 import { LoadingCard } from "./loading-card";
 
 export const NotifiSubscriptionCard: FunctionComponent = () => {
-  const { historyView, expiredView, signupView } = useNotifiModalContext();
+  const { setLocation } = useNotifiModalContext();
 
   const {
     canary: { frontendClient },
@@ -38,20 +38,14 @@ export const NotifiSubscriptionCard: FunctionComponent = () => {
       firstLoadRef.current = true;
 
       if (frontendClient.userState.status === "authenticated") {
-        historyView();
+        setLocation("history");
       } else if (frontendClient.userState.status === "expired") {
-        expiredView();
+        setLocation("expired");
       } else {
-        signupView();
+        setLocation("signup");
       }
     }
-  }, [
-    expiredView,
-    frontendClient.userState,
-    historyView,
-    setCardView,
-    signupView,
-  ]);
+  }, [frontendClient.userState, setCardView, setLocation]);
 
   if (isTokenExpired || cardView.state === "expired") {
     return <ExpiredCard />;

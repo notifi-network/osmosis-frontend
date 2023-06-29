@@ -3,19 +3,18 @@ import {
   createContext,
   FunctionComponent,
   PropsWithChildren,
-  useCallback,
   useContext,
+  useEffect,
   useState,
 } from "react";
 
 import { ModalBaseProps } from "~/modals";
 
+type Location = "history" | "expired" | "signup" | "edit";
+
 interface NotifiModalFunctions {
   innerState: Partial<ModalBaseProps>;
-  historyView: () => void;
-  expiredView: () => void;
-  signupView: () => void;
-  editView: () => void;
+  setLocation: (newLocation: Location) => void;
 }
 
 const NotifiModalContext = createContext<NotifiModalFunctions>({
@@ -27,36 +26,46 @@ export const NotifiModalContextProvider: FunctionComponent<
 > = ({ children }) => {
   const { setCardView } = useNotifiSubscriptionContext();
   const [innerState, setInnerState] = useState<Partial<ModalBaseProps>>({});
+  const [location, setLocation] = useState<Location>("signup");
 
-  const historyView = useCallback(() => {
-    setInnerState({ title: "Notifications" });
-    setCardView({ state: "history" });
-  }, [setCardView]);
-
-  const expiredView = useCallback(() => {
-    setInnerState({ title: "Token expired" });
-    setCardView({ state: "expired" });
-  }, [setCardView]);
-
-  const signupView = useCallback(() => {
-    setInnerState({ title: "Get notifications" });
-    setCardView({ state: "signup" });
-  }, [setCardView]);
-
-  const editView = useCallback(() => {
-    setInnerState({
-      title: "Notification settings",
-      onRequestBack: () => {
-        historyView();
-      },
-    });
-    setCardView({ state: "edit" });
-  }, [historyView, setCardView]);
+  useEffect(() => {
+    switch (location) {
+      case "history": {
+        setCardView({ state: "history" });
+        setInnerState({
+          title: "Notifications",
+          onRequestBack: () => {
+            setLocation("edit");
+          },
+          backIcon: "setting",
+        });
+        break;
+      }
+      case "expired": {
+        setCardView({ state: "expired" });
+        setInnerState({ title: "Token expired" });
+        break;
+      }
+      case "signup": {
+        setCardView({ state: "signup" });
+        setInnerState({ title: "Get notifications" });
+        break;
+      }
+      case "edit": {
+        setCardView({ state: "edit" });
+        setInnerState({
+          title: "Notification settings",
+          onRequestBack: () => {
+            setLocation("history");
+          },
+        });
+        break;
+      }
+    }
+  }, [location, setCardView]);
 
   return (
-    <NotifiModalContext.Provider
-      value={{ innerState, historyView, expiredView, signupView, editView }}
-    >
+    <NotifiModalContext.Provider value={{ innerState, setLocation }}>
       {children}
     </NotifiModalContext.Provider>
   );
