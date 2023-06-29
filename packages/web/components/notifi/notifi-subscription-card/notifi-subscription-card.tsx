@@ -5,12 +5,15 @@ import {
 import { FunctionComponent, useEffect, useMemo, useRef } from "react";
 
 import { useNotifiConfig } from "../notifi-config-context";
+import { useNotifiModalContext } from "../notifi-modal-context";
 import { ErrorCard } from "./error-card";
 import { ExpiredCard } from "./expired-card";
 import { FetchedCard } from "./fetched-card";
 import { LoadingCard } from "./loading-card";
 
 export const NotifiSubscriptionCard: FunctionComponent = () => {
+  const { historyView, expiredView, signupView } = useNotifiModalContext();
+
   const {
     canary: { frontendClient },
   } = useNotifiClientContext();
@@ -35,14 +38,20 @@ export const NotifiSubscriptionCard: FunctionComponent = () => {
       firstLoadRef.current = true;
 
       if (frontendClient.userState.status === "authenticated") {
-        setCardView({ state: "history" });
+        historyView();
       } else if (frontendClient.userState.status === "expired") {
-        setCardView({ state: "expired" });
+        expiredView();
       } else {
-        setCardView({ state: "signup" });
+        signupView();
       }
     }
-  }, [frontendClient.userState, setCardView]);
+  }, [
+    expiredView,
+    frontendClient.userState,
+    historyView,
+    setCardView,
+    signupView,
+  ]);
 
   if (isTokenExpired || cardView.state === "expired") {
     return <ExpiredCard />;

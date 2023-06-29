@@ -1,12 +1,19 @@
-import { useNotifiSubscriptionContext } from "@notifi-network/notifi-react-card";
 import { FunctionComponent } from "react";
 
+import { useNotifiModalContext } from "../../notifi-modal-context";
+
 export const HistoryEmpty: FunctionComponent = () => {
-  const { setCardView } = useNotifiSubscriptionContext();
+  const { editView } = useNotifiModalContext();
   return (
     <>
       No alert history
-      <button onClick={() => setCardView({ state: "edit" })}>Edit</button>
+      <button
+        onClick={() => {
+          editView();
+        }}
+      >
+        Edit
+      </button>
     </>
   );
 };

@@ -11,6 +11,7 @@ import { useKeplr } from "~/hooks";
 import { useStore } from "~/stores";
 
 import { NotifiConfigContext } from "./notifi-config-context";
+import { NotifiModalContextProvider } from "./notifi-modal-context";
 
 interface RequiredInfo {
   key: Key;
@@ -55,7 +56,7 @@ export const NotifiContextProvider: FunctionComponent<
         type="SUBSCRIPTION_CARD"
         id="afa2bcb3e2f1408eafb008bed44f54cd"
       >
-        {children}
+        <NotifiModalContextProvider>{children}</NotifiModalContextProvider>
       </NotifiConfigContext>
     </NotifiContext>
   );
