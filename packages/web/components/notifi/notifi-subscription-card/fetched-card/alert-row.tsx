@@ -11,7 +11,7 @@ interface Props {
   telegram: ToggleState;
 }
 
-interface ToggleState {
+export interface ToggleState {
   value: boolean;
   onToggle: (toggled: boolean) => void;
 }
