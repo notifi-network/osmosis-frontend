@@ -4,12 +4,17 @@ import {
 } from "@notifi-network/notifi-react-card";
 import { FunctionComponent, useCallback, useState } from "react";
 
+import { Button } from "~/components/buttons";
+
+import { useNotifiModalContext } from "../../notifi-modal-context";
+
 export const SignupView: FunctionComponent = () => {
   const {
     canary: { frontendClient },
   } = useNotifiClientContext();
   const [loading, setLoading] = useState(false);
-  const { params, render, setCardView } = useNotifiSubscriptionContext();
+  const { params, render } = useNotifiSubscriptionContext();
+  const { setLocation } = useNotifiModalContext();
 
   const onClickVerify = useCallback(async () => {
     setLoading(true);
@@ -27,26 +32,24 @@ export const SignupView: FunctionComponent = () => {
           (it) => it?.name === "Default"
         );
         if (defaultTargetGroup !== undefined) {
-          setCardView({ state: "history" });
+          setLocation("history");
         } else {
-          setCardView({ state: "edit" });
+          setLocation("edit");
         }
       }
     } finally {
       setLoading(false);
     }
-  }, [frontendClient, params, render, setCardView]);
+  }, [frontendClient, params, render, setLocation]);
 
   return (
-    <>
-      Verify your wallet with Notifi to get Notifications
-      <button
-        className={"button flex flex-col gap-1"}
-        disabled={loading}
-        onClick={() => onClickVerify()}
-      >
+    <div className="flex flex-col gap-4">
+      <p className="text-subtitle1 font-subtitle1">
+        Verify your wallet with Notifi to get Notifications
+      </p>
+      <Button mode="primary" disabled={loading} onClick={() => onClickVerify()}>
         Verify
-      </button>
-    </>
+      </Button>
+    </div>
   );
 };
