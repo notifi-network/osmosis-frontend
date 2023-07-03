@@ -1,5 +1,6 @@
-import { Keplr, Key } from "@keplr-wallet/types";
+import { WalletAccount } from "@cosmos-kit/core";
 import { NotifiContext } from "@notifi-network/notifi-react-card";
+import { observer } from "mobx-react-lite";
 import React, {
   FunctionComponent,
   PropsWithChildren,
@@ -7,29 +8,34 @@ import React, {
   useState,
 } from "react";
 
-import { useKeplr } from "~/hooks";
-import { useStore } from "~/stores";
-
+import { useStore } from "../../stores/";
 import { NotifiConfigContext } from "./notifi-config-context";
 import { NotifiModalContextProvider } from "./notifi-modal-context";
 
 interface RequiredInfo {
-  key: Key;
-  keplr: Keplr;
+  account: WalletAccount;
   chainId: string;
 }
 
-export const NotifiContextProvider: FunctionComponent<
-  PropsWithChildren<{}>
-> = ({ children }) => {
-  const { chainStore } = useStore();
-  const { chainId } = chainStore.osmosis;
-  const keplr = useKeplr();
+const NotifiContextProviderImpl: FunctionComponent<PropsWithChildren<{}>> = ({
+  children,
+}) => {
+  const {
+    chainStore: {
+      osmosis: { chainId },
+    },
+    accountStore,
+  } = useStore();
   const [info, setInfo] = useState<RequiredInfo | undefined>();
+  const wallet = accountStore.getWallet(chainId);
+  const walletConnected = Boolean(wallet?.isWalletConnected);
 
   useEffect(() => {
-    getRequiredInfo(chainId, keplr.getKeplr).then((info) => setInfo(info));
-  }, [keplr, chainId]);
+    if (!walletConnected) {
+      return;
+    }
+    getRequiredInfo(chainId, accountStore).then((info) => setInfo(info));
+  }, [accountStore, chainId, wallet, walletConnected]);
 
   if (info === undefined) {
     return <>{children}</>;
@@ -40,12 +46,16 @@ export const NotifiContextProvider: FunctionComponent<
       env="Development"
       walletBlockchain="OSMOSIS"
       dappAddress="junitest.xyz"
-      accountAddress={info.key.bech32Address}
-      walletPublicKey={Buffer.from(info.key.pubKey).toString("base64")}
+      accountAddress={info.account.address}
+      walletPublicKey={Buffer.from(info.account.pubkey).toString("base64")}
       signMessage={async (message: Uint8Array): Promise<Uint8Array> => {
-        const result = await info.keplr.signArbitrary(
+        const wallet = accountStore.getWallet(info.chainId);
+        if (wallet === undefined || wallet.client.signArbitrary === undefined) {
+          throw new Error("Wallet does not support signing Notifi messages");
+        }
+        const result = await wallet.client.signArbitrary(
           info.chainId,
-          info.key.bech32Address,
+          info.account.address,
           message
         );
         return Buffer.from(result.signature, "base64");
@@ -64,18 +74,19 @@ export const NotifiContextProvider: FunctionComponent<
 
 const getRequiredInfo = async (
   chainId: string,
-  getter: () => Promise<Keplr | undefined>
+  accountStore: ReturnType<typeof useStore>["accountStore"]
 ): Promise<RequiredInfo | undefined> => {
-  const keplr = await getter();
-  if (keplr === undefined) {
+  const wallet = accountStore.getWallet(chainId);
+  if (wallet === undefined || wallet.client.getAccount === undefined) {
     return;
   }
 
-  const key = await keplr.getKey(chainId);
+  const account = await wallet.client.getAccount(chainId);
 
   return {
-    key,
-    keplr,
+    account,
     chainId,
   };
 };
+
+export const NotifiContextProvider = observer(NotifiContextProviderImpl);
