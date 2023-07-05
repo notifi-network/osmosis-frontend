@@ -1,7 +1,7 @@
 import { EventTypeItem } from "@notifi-network/notifi-frontend-client";
 import { FunctionComponent } from "react";
 
-import { CheckBox } from "~/components/control";
+import { Switch } from "~/components/control";
 
 interface Props {
   row: EventTypeItem;
@@ -74,23 +74,30 @@ const GenericAlertRow: FunctionComponent<GenericProps> = ({
       <p className="text-caption font-caption text-osmoverse-200">
         {description}
       </p>
-      <CheckBox
+      <Switch
+        labelPosition="right"
         disabled={disabled}
         isOn={email.value}
         onToggle={email.onToggle}
       >
         Email
-      </CheckBox>
-      <CheckBox
+      </Switch>
+      <Switch
+        labelPosition="right"
         disabled={disabled}
         isOn={telegram.value}
         onToggle={telegram.onToggle}
       >
         Telegram
-      </CheckBox>
-      <CheckBox disabled={disabled} isOn={sms.value} onToggle={sms.onToggle}>
+      </Switch>
+      <Switch
+        labelPosition="right"
+        disabled={disabled}
+        isOn={sms.value}
+        onToggle={sms.onToggle}
+      >
         SMS
-      </CheckBox>
+      </Switch>
     </div>
   );
 };
