@@ -23,7 +23,7 @@ import { Button, buttonCVA } from "../buttons";
 import IconButton from "../buttons/icon-button";
 import ClientOnly from "../client-only";
 import { MainMenu } from "../main-menu";
-import { NotifiPopover } from "../notifi";
+import { NotifiModal, NotifiPopover } from "../notifi";
 import { Popover } from "../popover";
 import SkeletonLoader from "../skeleton-loader";
 import { CustomClasses, MainLayoutMenu } from "../types";
@@ -48,6 +48,12 @@ export const NavBar: FunctionComponent<
     isOpen: isSettingsOpen,
     onClose: onCloseSettings,
     onOpen: onOpenSettings,
+  } = useDisclosure();
+
+  const {
+    isOpen: isNotifiOpen,
+    onClose: onCloseNotifi,
+    onOpen: onOpenNotifi,
   } = useDisclosure();
 
   const {
@@ -117,22 +123,40 @@ export const NavBar: FunctionComponent<
                   </Popover.Button>
                   <Popover.Panel className="top-navbar-mobile absolute top-[100%] flex w-52 flex-col gap-2 rounded-3xl bg-osmoverse-800 py-4 px-3">
                     <MainMenu
-                      menus={menus.concat({
-                        label: "Settings",
-                        link: (e) => {
-                          e.stopPropagation();
-                          onOpenSettings();
-                          closeMobileMainMenu();
+                      menus={menus.concat(
+                        {
+                          label: "Settings",
+                          link: (e) => {
+                            e.stopPropagation();
+                            onOpenSettings();
+                            closeMobileMainMenu();
+                          },
+                          icon: (
+                            <Icon
+                              id="setting"
+                              className="text-white-full"
+                              width={20}
+                              height={20}
+                            />
+                          ),
                         },
-                        icon: (
-                          <Icon
-                            id="setting"
-                            className="text-white-full"
-                            width={20}
-                            height={20}
-                          />
-                        ),
-                      })}
+                        {
+                          label: "Notifications",
+                          link: (e) => {
+                            e.stopPropagation();
+                            onOpenNotifi();
+                            closeMobileMainMenu();
+                          },
+                          icon: (
+                            <Icon
+                              id="bell"
+                              className="text-white-full"
+                              width={20}
+                              height={20}
+                            />
+                          ),
+                        }
+                      )}
                     />
                     <ClientOnly>
                       <SkeletonLoader isLoaded={!isWalletLoading}>
@@ -174,6 +198,7 @@ export const NavBar: FunctionComponent<
             isOpen={isSettingsOpen}
             onRequestClose={onCloseSettings}
           />
+          <NotifiModal isOpen={isNotifiOpen} onRequestClose={onCloseNotifi} />
           <ClientOnly>
             <SkeletonLoader isLoaded={!isWalletLoading}>
               <WalletInfo
