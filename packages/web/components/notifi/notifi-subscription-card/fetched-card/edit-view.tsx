@@ -1,5 +1,6 @@
 import { NotifiFrontendClient } from "@notifi-network/notifi-frontend-client";
 import {
+  AlertConfiguration,
   broadcastMessageConfiguration,
   fusionToggleConfiguration,
   resolveStringRef,
@@ -39,7 +40,7 @@ type EditState = Readonly<{
 export const EditView: FunctionComponent = () => {
   const config = useNotifiConfig();
   const { account } = useNotifiModalContext();
-  const { instantSubscribe } = useNotifiSubscribe({
+  const { subscribe } = useNotifiSubscribe({
     targetGroupName: "Default",
   });
 
@@ -77,7 +78,50 @@ export const EditView: FunctionComponent = () => {
     smsSelected: false,
   });
 
+  const needsSave = useMemo<"alerts" | "targets" | null>(() => {
+    if (config.state === "fetched") {
+      for (let i = 0; i < config.data.eventTypes.length; ++i) {
+        const row = config.data.eventTypes[i];
+        if (initialToggleStates[row.name] !== toggleStates[row.name]) {
+          return "alerts";
+        }
+      }
+    }
+
+    if (editState.targetGroup === undefined) {
+      return (editState.emailSelected && formState.email !== "") ||
+        (editState.telegramSelected && formState.telegram !== "") ||
+        (editState.smsSelected && formState.phoneNumber !== "")
+        ? "targets"
+        : null;
+    } else {
+      return (editState.emailSelected && formState.email !== originalEmail) ||
+        (!editState.emailSelected && originalEmail !== "") ||
+        (editState.smsSelected &&
+          formState.phoneNumber !== originalPhoneNunmber) ||
+        (!editState.smsSelected && originalPhoneNunmber !== "") ||
+        (editState.telegramSelected &&
+          formState.telegram !== originalTelegram) ||
+        (!editState.telegramSelected && originalTelegram !== "")
+        ? "targets"
+        : null;
+    }
+  }, [
+    config,
+    editState,
+    formState,
+    initialToggleStates,
+    originalEmail,
+    originalPhoneNunmber,
+    originalTelegram,
+    toggleStates,
+  ]);
+
   const onClickSave = useCallback(async () => {
+    if (needsSave === null) {
+      return;
+    }
+
     const {
       email: emailToSave,
       phoneNumber: smsToSave,
@@ -90,15 +134,9 @@ export const EditView: FunctionComponent = () => {
     };
 
     try {
-      await client.ensureTargetGroup({
-        name: "Default",
-        emailAddress: emailSelected ? emailToSave : undefined,
-        phoneNumber: smsSelected ? smsToSave : undefined,
-        telegramId: telegramSelected ? telegramToSave : undefined,
-        discordId: undefined,
-      });
-
-      if (config.state === "fetched") {
+      if (needsSave === "alerts" && config.state === "fetched") {
+        const alertConfigurations: Record<string, AlertConfiguration | null> =
+          {};
         for (let i = 0; i < config.data.eventTypes.length; ++i) {
           const row = config.data.eventTypes[i];
           const alert = client.data?.alerts?.find(
@@ -131,20 +169,39 @@ export const EditView: FunctionComponent = () => {
                 fusionId,
                 fusionSourceAddress,
               });
-            }
-            if (alertConfiguration !== null) {
-              await instantSubscribe({
-                alertName: row.name,
-                alertConfiguration,
+            } else if (row.type === "fusion") {
+              const fusionId = resolveStringRef(
+                row.name,
+                row.fusionEventId,
+                inputs
+              );
+              const fusionSourceAddress = resolveStringRef(
+                row.name,
+                row.sourceAddress,
+                inputs
+              ).toLowerCase();
+              alertConfiguration = fusionToggleConfiguration({
+                fusionId,
+                fusionSourceAddress,
               });
             }
+            alertConfigurations[row.name] = alertConfiguration;
           } else if (alert !== undefined && !isEnabled) {
-            await instantSubscribe({
-              alertName: row.name,
-              alertConfiguration: null,
-            });
+            alertConfigurations[row.name] = null;
           }
         }
+
+        await subscribe(
+          alertConfigurations as Record<string, AlertConfiguration>
+        );
+      } else if (needsSave === "targets") {
+        await client.ensureTargetGroup({
+          name: "Default",
+          emailAddress: emailSelected ? emailToSave : undefined,
+          phoneNumber: smsSelected ? smsToSave : undefined,
+          telegramId: telegramSelected ? telegramToSave : undefined,
+          discordId: undefined,
+        });
       }
     } catch (e: unknown) {}
   }, [
@@ -153,7 +210,8 @@ export const EditView: FunctionComponent = () => {
     config,
     editState,
     formState,
-    instantSubscribe,
+    needsSave,
+    subscribe,
     toggleStates,
   ]);
 
@@ -200,45 +258,6 @@ export const EditView: FunctionComponent = () => {
       });
     }
   }, [client, editState, setEmail, setPhoneNumber, setTelegram]);
-
-  const isDirty = useMemo(() => {
-    if (config.state === "fetched") {
-      for (let i = 0; i < config.data.eventTypes.length; ++i) {
-        const row = config.data.eventTypes[i];
-        if (initialToggleStates[row.name] !== toggleStates[row.name]) {
-          return true;
-        }
-      }
-    }
-
-    if (editState.targetGroup === undefined) {
-      return (
-        (editState.emailSelected && formState.email !== "") ||
-        (editState.telegramSelected && formState.telegram !== "") ||
-        (editState.smsSelected && formState.phoneNumber !== "")
-      );
-    } else {
-      return (
-        (editState.emailSelected && formState.email !== originalEmail) ||
-        (!editState.emailSelected && originalEmail !== "") ||
-        (editState.smsSelected &&
-          formState.phoneNumber !== originalPhoneNunmber) ||
-        (!editState.smsSelected && originalPhoneNunmber !== "") ||
-        (editState.telegramSelected &&
-          formState.telegram !== originalTelegram) ||
-        (!editState.telegramSelected && originalTelegram !== "")
-      );
-    }
-  }, [
-    config,
-    editState,
-    formState,
-    initialToggleStates,
-    originalEmail,
-    originalPhoneNunmber,
-    originalTelegram,
-    toggleStates,
-  ]);
 
   return (
     <div className="flex flex-col space-y-2">
@@ -337,7 +356,7 @@ export const EditView: FunctionComponent = () => {
         toggleStates={toggleStates}
         setToggleStates={setToggleStates}
       />
-      {isDirty ? (
+      {needsSave !== null ? (
         <div
           className={classNames(
             styles.saveSection,

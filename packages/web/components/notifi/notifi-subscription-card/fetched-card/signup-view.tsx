@@ -40,7 +40,7 @@ export const SignupView: FunctionComponent = () => {
   }, [client, params.signMessage, params.walletBlockchain, setLocation]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 p-4 md:p-6">
       <p className="text-subtitle1 font-subtitle1">
         Verify your wallet with Notifi to get Notifications
       </p>

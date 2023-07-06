@@ -45,7 +45,7 @@ const NotifiContextProviderImpl: FunctionComponent<PropsWithChildren<{}>> = ({
     <NotifiContext
       env="Development"
       walletBlockchain="OSMOSIS"
-      dappAddress="junitest.xyz"
+      dappAddress="osmosis"
       accountAddress={info.account.address}
       walletPublicKey={Buffer.from(info.account.pubkey).toString("base64")}
       signMessage={async (message: Uint8Array): Promise<Uint8Array> => {
@@ -63,7 +63,7 @@ const NotifiContextProviderImpl: FunctionComponent<PropsWithChildren<{}>> = ({
     >
       <NotifiConfigContext
         type="SUBSCRIPTION_CARD"
-        id="afa2bcb3e2f1408eafb008bed44f54cd"
+        id="c5fb30811f5b47b79dd9a400480c2670"
       >
         <NotifiModalContextProvider account={info.account.address}>
           {children}
