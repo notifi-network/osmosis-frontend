@@ -11,7 +11,7 @@ export const AlertList: FunctionComponent = () => {
   }
 
   return (
-    <ul className="flex flex-col gap-3 px-6 pb-6">
+    <ul className="flex flex-col gap-3 px-6 pb-6 pt-3">
       {config.data.eventTypes.map((row) => {
         if (row.type === "label") {
           return (

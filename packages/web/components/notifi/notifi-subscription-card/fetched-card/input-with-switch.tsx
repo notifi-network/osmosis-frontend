@@ -23,7 +23,7 @@ export const InputWithSwitch: FunctionComponent<Props> = ({
         className="flex-grow"
         labelPosition="left"
         isOn={selected}
-        onToggle={(value) => setSelected(value)}
+        onToggle={(toggled) => setSelected(toggled)}
       >
         <InputWithIcon iconId={iconId} {...inputProps} />
       </Switch>

@@ -1,10 +1,11 @@
 import { NotifiFrontendClient } from "@notifi-network/notifi-frontend-client";
 import {
+  useNotifiClientContext,
   useNotifiForm,
   useNotifiSubscriptionContext,
 } from "@notifi-network/notifi-react-card";
 import classNames from "classnames";
-import { FunctionComponent, useMemo, useState } from "react";
+import { FunctionComponent, useEffect, useMemo, useState } from "react";
 
 import { AlertList } from "./alert-list";
 import styles from "./edit-view.module.css";
@@ -22,6 +23,8 @@ type EditState = Readonly<{
 }>;
 
 export const EditView: FunctionComponent = () => {
+  const { client } = useNotifiClientContext();
+
   const {
     email: originalEmail,
     phoneNumber: originalPhoneNunmber,
@@ -36,6 +39,41 @@ export const EditView: FunctionComponent = () => {
     telegramSelected: false,
     smsSelected: false,
   });
+
+  useEffect(() => {
+    const targetGroup = client.data?.targetGroups?.find(
+      (it) => it.name === "Default"
+    );
+    if (targetGroup === editState.targetGroup) {
+      return;
+    }
+
+    if (targetGroup !== undefined) {
+      const emailTarget = targetGroup.emailTargets?.[0];
+      const emailSelected = emailTarget !== undefined;
+      const telegramTarget = targetGroup.telegramTargets?.[0];
+      const telegramSelected = telegramTarget !== undefined;
+      const smsTarget = targetGroup.smsTargets?.[0];
+      const smsSelected = smsTarget !== undefined;
+
+      setEmail(emailTarget?.emailAddress ?? "");
+      setTelegram(telegramTarget?.telegramId ?? "");
+      setPhoneNumber(smsTarget?.phoneNumber ?? "");
+      setEditState({
+        targetGroup,
+        emailSelected,
+        telegramSelected,
+        smsSelected,
+      });
+    } else {
+      setEditState({
+        targetGroup: undefined,
+        emailSelected: false,
+        telegramSelected: false,
+        smsSelected: false,
+      });
+    }
+  }, [client, editState, setEmail, setPhoneNumber, setTelegram]);
 
   const isDirty = useMemo(() => {
     if (editState.targetGroup === undefined) {
@@ -75,7 +113,19 @@ export const EditView: FunctionComponent = () => {
         placeholder="Email"
         value={formState.email}
         onChange={(e) => {
-          setEmail(e.currentTarget.value);
+          const newValue = e.currentTarget.value;
+          if (newValue === "") {
+            setEditState((previous) => ({
+              ...previous,
+              emailSelected: false,
+            }));
+          } else {
+            setEditState((previous) => ({
+              ...previous,
+              emailSelected: true,
+            }));
+          }
+          setEmail(newValue);
         }}
         selected={editState.emailSelected}
         setSelected={(selected) => {
@@ -91,7 +141,19 @@ export const EditView: FunctionComponent = () => {
         placeholder="Telegram"
         value={formState.telegram}
         onChange={(e) => {
-          setTelegram(e.currentTarget.value);
+          const newValue = e.currentTarget.value;
+          if (newValue === "") {
+            setEditState((previous) => ({
+              ...previous,
+              telegramSelected: false,
+            }));
+          } else {
+            setEditState((previous) => ({
+              ...previous,
+              telegramSelected: true,
+            }));
+          }
+          setTelegram(newValue);
         }}
         selected={editState.telegramSelected}
         setSelected={(selected) => {
@@ -107,7 +169,22 @@ export const EditView: FunctionComponent = () => {
         placeholder="SMS"
         value={formState.phoneNumber}
         onChange={(e) => {
-          setPhoneNumber(e.currentTarget.value);
+          let newValue = e.currentTarget.value;
+          if (newValue !== "" && !newValue.startsWith("+")) {
+            newValue = "+1" + newValue;
+          }
+          if (newValue === "") {
+            setEditState((previous) => ({
+              ...previous,
+              smsSelected: false,
+            }));
+          } else if (newValue !== "") {
+            setEditState((previous) => ({
+              ...previous,
+              smsSelected: true,
+            }));
+          }
+          setPhoneNumber(newValue);
         }}
         selected={editState.smsSelected}
         setSelected={(selected) => {
