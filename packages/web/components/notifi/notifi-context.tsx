@@ -65,7 +65,9 @@ const NotifiContextProviderImpl: FunctionComponent<PropsWithChildren<{}>> = ({
         type="SUBSCRIPTION_CARD"
         id="afa2bcb3e2f1408eafb008bed44f54cd"
       >
-        <NotifiModalContextProvider>{children}</NotifiModalContextProvider>
+        <NotifiModalContextProvider account={info.account.address}>
+          {children}
+        </NotifiModalContextProvider>
       </NotifiConfigContext>
     </NotifiContext>
   );

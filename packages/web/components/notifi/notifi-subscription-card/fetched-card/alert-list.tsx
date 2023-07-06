@@ -3,7 +3,15 @@ import { FunctionComponent } from "react";
 import { useNotifiConfig } from "../../notifi-config-context";
 import { AlertRow } from "./alert-row";
 
-export const AlertList: FunctionComponent = () => {
+interface Props {
+  disabled: boolean;
+  toggleStates: Record<string, boolean>;
+  setToggleStates: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
+}
+
+export const AlertList: FunctionComponent<Props> = (props) => {
   const config = useNotifiConfig();
 
   if (config.state !== "fetched") {
@@ -25,7 +33,7 @@ export const AlertList: FunctionComponent = () => {
         }
         return (
           <li key={row.name}>
-            <AlertRow row={row} disabled={false} />
+            <AlertRow row={row} {...props} />
           </li>
         );
       })}

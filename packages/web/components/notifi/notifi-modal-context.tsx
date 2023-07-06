@@ -13,6 +13,7 @@ import { ModalBaseProps } from "~/modals";
 type Location = "history" | "expired" | "signup" | "edit";
 
 interface NotifiModalFunctions {
+  account: string;
   innerState: Partial<ModalBaseProps>;
   setLocation: (newLocation: Location) => void;
 }
@@ -22,8 +23,8 @@ const NotifiModalContext = createContext<NotifiModalFunctions>({
 } as unknown as NotifiModalFunctions);
 
 export const NotifiModalContextProvider: FunctionComponent<
-  PropsWithChildren<{}>
-> = ({ children }) => {
+  PropsWithChildren<{ account: string }>
+> = ({ account, children }) => {
   const { setCardView } = useNotifiSubscriptionContext();
   const [innerState, setInnerState] = useState<Partial<ModalBaseProps>>({});
   const [location, setLocation] = useState<Location>("signup");
@@ -65,7 +66,7 @@ export const NotifiModalContextProvider: FunctionComponent<
   }, [location, setCardView]);
 
   return (
-    <NotifiModalContext.Provider value={{ innerState, setLocation }}>
+    <NotifiModalContext.Provider value={{ account, innerState, setLocation }}>
       {children}
     </NotifiModalContext.Provider>
   );

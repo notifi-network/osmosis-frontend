@@ -6,38 +6,31 @@ import { Switch } from "~/components/control";
 interface Props {
   row: EventTypeItem;
   disabled: boolean;
+  toggleStates: Record<string, boolean>;
+  setToggleStates: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
 }
 
-interface GenericProps extends Props {
-  title: string;
-}
-
-export const AlertRow: FunctionComponent<Props> = (props) => {
-  switch (props.row.type) {
-    case "broadcast":
-      return <GenericAlertRow {...props} title={props.row.name} />;
-    case "directPush":
-      return <GenericAlertRow {...props} title={props.row.name} />;
-    case "fusion":
-    case "fusionToggle":
-      return <GenericAlertRow {...props} title={props.row.name} />;
-    default:
-      return <GenericAlertRow {...props} disabled title={props.row.name} />;
-  }
-};
-
-const GenericAlertRow: FunctionComponent<GenericProps> = ({
-  title,
+export const AlertRow: FunctionComponent<Props> = ({
+  row,
   disabled,
+  toggleStates,
+  setToggleStates,
 }) => {
   return (
     <Switch
       labelPosition="right"
       disabled={disabled}
-      isOn={false}
-      onToggle={() => {}}
+      isOn={toggleStates[row.name] === true}
+      onToggle={(value) => {
+        setToggleStates((previous) => ({
+          ...previous,
+          [row.name]: value,
+        }));
+      }}
     >
-      {title}
+      {row.name}
     </Switch>
   );
 };

@@ -1,7 +1,11 @@
 import { NotifiFrontendClient } from "@notifi-network/notifi-frontend-client";
 import {
+  broadcastMessageConfiguration,
+  fusionToggleConfiguration,
+  resolveStringRef,
   useNotifiClientContext,
   useNotifiForm,
+  useNotifiSubscribe,
   useNotifiSubscriptionContext,
 } from "@notifi-network/notifi-react-card";
 import classNames from "classnames";
@@ -15,6 +19,8 @@ import {
 
 import { Button } from "~/components/buttons";
 
+import { useNotifiConfig } from "../../notifi-config-context";
+import { useNotifiModalContext } from "../../notifi-modal-context";
 import { AlertList } from "./alert-list";
 import styles from "./edit-view.module.css";
 import { InputWithSwitch } from "./input-with-switch";
@@ -31,6 +37,12 @@ type EditState = Readonly<{
 }>;
 
 export const EditView: FunctionComponent = () => {
+  const config = useNotifiConfig();
+  const { account } = useNotifiModalContext();
+  const { instantSubscribe } = useNotifiSubscribe({
+    targetGroupName: "Default",
+  });
+
   const { client } = useNotifiClientContext();
 
   const {
@@ -42,6 +54,22 @@ export const EditView: FunctionComponent = () => {
 
   const { formState, setEmail, setPhoneNumber, setTelegram } = useNotifiForm();
 
+  const initialToggleStates = useMemo<Record<string, boolean>>(() => {
+    if (config.state !== "fetched") {
+      return {};
+    }
+
+    const alerts = client.data?.alerts ?? [];
+    const newStates: Record<string, boolean> = {};
+    config.data.eventTypes.forEach((row) => {
+      const isActive = alerts.find((it) => it?.name === row.name) !== undefined;
+      newStates[row.name] = isActive;
+    });
+
+    return newStates;
+  }, [client, config]);
+
+  const [toggleStates, setToggleStates] = useState<Record<string, boolean>>({});
   const [editState, setEditState] = useState<EditState>({
     targetGroup: undefined,
     emailSelected: false,
@@ -57,6 +85,10 @@ export const EditView: FunctionComponent = () => {
     } = formState;
     const { emailSelected, telegramSelected, smsSelected } = editState;
 
+    const inputs: Record<string, unknown> = {
+      userWallet: account,
+    };
+
     try {
       await client.ensureTargetGroup({
         name: "Default",
@@ -65,8 +97,74 @@ export const EditView: FunctionComponent = () => {
         telegramId: telegramSelected ? telegramToSave : undefined,
         discordId: undefined,
       });
+
+      if (config.state === "fetched") {
+        for (let i = 0; i < config.data.eventTypes.length; ++i) {
+          const row = config.data.eventTypes[i];
+          const alert = client.data?.alerts?.find(
+            (it) => it?.name === row.name
+          );
+          const isEnabled = toggleStates[row.name] === true;
+          if (alert === undefined && isEnabled) {
+            let alertConfiguration = null;
+            if (row.type === "broadcast") {
+              const topicName = resolveStringRef(
+                row.name,
+                row.broadcastId,
+                inputs
+              );
+              alertConfiguration = broadcastMessageConfiguration({
+                topicName,
+              });
+            } else if (row.type === "fusionToggle") {
+              const fusionId = resolveStringRef(
+                row.name,
+                row.fusionEventId,
+                inputs
+              );
+              const fusionSourceAddress = resolveStringRef(
+                row.name,
+                row.sourceAddress,
+                inputs
+              ).toLowerCase();
+              alertConfiguration = fusionToggleConfiguration({
+                fusionId,
+                fusionSourceAddress,
+              });
+            }
+            if (alertConfiguration !== null) {
+              await instantSubscribe({
+                alertName: row.name,
+                alertConfiguration,
+              });
+            }
+          } else if (alert !== undefined && !isEnabled) {
+            await instantSubscribe({
+              alertName: row.name,
+              alertConfiguration: null,
+            });
+          }
+        }
+      }
     } catch (e: unknown) {}
-  }, [client, editState, formState]);
+  }, [
+    account,
+    client,
+    config,
+    editState,
+    formState,
+    instantSubscribe,
+    toggleStates,
+  ]);
+
+  useEffect(() => {
+    if (
+      Object.keys(toggleStates).length === 0 &&
+      Object.keys(initialToggleStates).length !== 0
+    ) {
+      setToggleStates(initialToggleStates);
+    }
+  }, [initialToggleStates, toggleStates]);
 
   useEffect(() => {
     const targetGroup = client.data?.targetGroups?.find(
@@ -104,6 +202,15 @@ export const EditView: FunctionComponent = () => {
   }, [client, editState, setEmail, setPhoneNumber, setTelegram]);
 
   const isDirty = useMemo(() => {
+    if (config.state === "fetched") {
+      for (let i = 0; i < config.data.eventTypes.length; ++i) {
+        const row = config.data.eventTypes[i];
+        if (initialToggleStates[row.name] !== toggleStates[row.name]) {
+          return true;
+        }
+      }
+    }
+
     if (editState.targetGroup === undefined) {
       return (
         (editState.emailSelected && formState.email !== "") ||
@@ -123,11 +230,14 @@ export const EditView: FunctionComponent = () => {
       );
     }
   }, [
+    config,
     editState,
     formState,
+    initialToggleStates,
     originalEmail,
     originalPhoneNunmber,
     originalTelegram,
+    toggleStates,
   ]);
 
   return (
@@ -222,7 +332,11 @@ export const EditView: FunctionComponent = () => {
           }));
         }}
       />
-      <AlertList />
+      <AlertList
+        disabled={loading}
+        toggleStates={toggleStates}
+        setToggleStates={setToggleStates}
+      />
       {isDirty ? (
         <div
           className={classNames(
