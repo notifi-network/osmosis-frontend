@@ -9,26 +9,23 @@ import { Button } from "~/components/buttons";
 import { useNotifiModalContext } from "../../notifi-modal-context";
 
 export const SignupView: FunctionComponent = () => {
-  const {
-    canary: { frontendClient },
-  } = useNotifiClientContext();
+  const { client } = useNotifiClientContext();
   const [loading, setLoading] = useState(false);
-  const { params, render } = useNotifiSubscriptionContext();
+  const { params } = useNotifiSubscriptionContext();
   const { setLocation } = useNotifiModalContext();
 
   const onClickVerify = useCallback(async () => {
     setLoading(true);
     try {
       if (params.walletBlockchain === "OSMOSIS") {
-        await frontendClient.logIn({
+        await client.logIn({
           walletBlockchain: "OSMOSIS",
           signMessage: params.signMessage,
         });
 
-        const data = await frontendClient.fetchData();
-        render(data);
+        const data = await client.fetchData();
 
-        const defaultTargetGroup = data.targetGroup?.find(
+        const defaultTargetGroup = data.targetGroups?.find(
           (it) => it?.name === "Default"
         );
         if (defaultTargetGroup !== undefined) {
@@ -40,7 +37,7 @@ export const SignupView: FunctionComponent = () => {
     } finally {
       setLoading(false);
     }
-  }, [frontendClient, params, render, setLocation]);
+  }, [client, params.signMessage, params.walletBlockchain, setLocation]);
 
   return (
     <div className="flex flex-col gap-4">

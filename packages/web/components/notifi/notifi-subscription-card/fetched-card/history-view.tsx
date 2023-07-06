@@ -18,9 +18,7 @@ type CursorInfo = Readonly<{
 const MESSAGES_PER_PAGE = 50;
 
 export const HistoryView: FunctionComponent = () => {
-  const {
-    canary: { frontendClient },
-  } = useNotifiClientContext();
+  const { client } = useNotifiClientContext();
 
   const [allNodes, setAllNodes] = useState<ReadonlyArray<HistoryRowData>>([]);
   const [cursorInfo, setCursorInfo] = useState<CursorInfo>({
@@ -32,10 +30,7 @@ export const HistoryView: FunctionComponent = () => {
 
   const getNotificationHistory = useCallback(
     async ({ refresh }: { refresh: boolean }) => {
-      if (
-        frontendClient.userState === null ||
-        frontendClient.userState.status !== "authenticated"
-      ) {
+      if (!client.isInitialized || !client.isAuthenticated) {
         return;
       }
 
@@ -48,7 +43,7 @@ export const HistoryView: FunctionComponent = () => {
       }
 
       isQuerying.current = true;
-      const result = await frontendClient.getNotificationHistory({
+      const result = await client.getNotificationHistory({
         first: MESSAGES_PER_PAGE,
         after: refresh ? undefined : cursorInfo.endCursor,
       });
@@ -60,7 +55,7 @@ export const HistoryView: FunctionComponent = () => {
       isQuerying.current = false;
       return result;
     },
-    [cursorInfo.endCursor, cursorInfo.hasNextPage, frontendClient]
+    [client, cursorInfo.endCursor, cursorInfo.hasNextPage]
   );
 
   useEffect(() => {

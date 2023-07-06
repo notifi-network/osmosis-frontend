@@ -46,11 +46,11 @@ export const NotifiPopover: FunctionComponent<NotifiButtonProps> = ({
           "absolute bottom-[-0.5rem] right-[-10rem] z-40",
           "h-[42.5rem] w-[27.5rem]",
           "translate-y-full",
-          "rounded-2xl bg-osmoverse-800 p-3 shadow-md md:p-5",
+          "rounded-2xl bg-osmoverse-800 shadow-md",
           "flex flex-col overflow-y-auto"
         )}
       >
-        <div className="mt-2 mb-4 flex place-content-between items-center">
+        <div className="mt-2 mb-4 flex place-content-between items-center pt-3 md:pt-5">
           {onRequestBack && (
             <IconButton
               aria-label="Back"

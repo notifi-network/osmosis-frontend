@@ -1,20 +1,133 @@
-import { FunctionComponent } from "react";
+import { NotifiFrontendClient } from "@notifi-network/notifi-frontend-client";
+import {
+  useNotifiForm,
+  useNotifiSubscriptionContext,
+} from "@notifi-network/notifi-react-card";
+import classNames from "classnames";
+import { FunctionComponent, useMemo, useState } from "react";
 
 import { AlertList } from "./alert-list";
-import { EditEmail } from "./edit-email";
-import { EditSms } from "./edit-sms";
-import { EditTelegram } from "./edit-telegram";
+import styles from "./edit-view.module.css";
+import { InputWithSwitch } from "./input-with-switch";
+
+type TargetGroupFragment = Awaited<
+  ReturnType<NotifiFrontendClient["getTargetGroups"]>
+>[number];
+
+type EditState = Readonly<{
+  targetGroup: TargetGroupFragment | undefined;
+  emailSelected: boolean;
+  telegramSelected: boolean;
+  smsSelected: boolean;
+}>;
 
 export const EditView: FunctionComponent = () => {
+  const {
+    email: originalEmail,
+    phoneNumber: originalPhoneNunmber,
+    telegramId: originalTelegram,
+  } = useNotifiSubscriptionContext();
+
+  const { formState, setEmail, setPhoneNumber, setTelegram } = useNotifiForm();
+
+  const [editState, setEditState] = useState<EditState>({
+    targetGroup: undefined,
+    emailSelected: false,
+    telegramSelected: false,
+    smsSelected: false,
+  });
+
+  const isDirty = useMemo(() => {
+    if (editState.targetGroup === undefined) {
+      return (
+        (editState.emailSelected && formState.email !== "") ||
+        (editState.telegramSelected && formState.telegram !== "") ||
+        (editState.smsSelected && formState.phoneNumber !== "")
+      );
+    } else {
+      return (
+        (editState.emailSelected && formState.email !== originalEmail) ||
+        (!editState.emailSelected && originalEmail !== "") ||
+        (editState.smsSelected &&
+          formState.phoneNumber !== originalPhoneNunmber) ||
+        (!editState.smsSelected && originalPhoneNunmber !== "") ||
+        (editState.telegramSelected &&
+          formState.telegram !== originalTelegram) ||
+        (!editState.telegramSelected && originalTelegram !== "")
+      );
+    }
+  }, [
+    editState,
+    formState,
+    originalEmail,
+    originalPhoneNunmber,
+    originalTelegram,
+  ]);
+
   return (
     <div className="flex flex-col space-y-2">
       <p className="text-center text-caption font-caption text-osmoverse-200">
         Add destinations for your notifications.
       </p>
-      <EditEmail />
-      <EditTelegram />
-      <EditSms />
+      <InputWithSwitch
+        iconId="email"
+        type="email"
+        placeholder="Email"
+        value={formState.email}
+        onChange={(e) => {
+          setEmail(e.currentTarget.value);
+        }}
+        selected={editState.emailSelected}
+        setSelected={(selected) => {
+          setEditState((previous) => ({
+            ...previous,
+            emailSelected: selected,
+          }));
+        }}
+      />
+      <InputWithSwitch
+        iconId="telegram"
+        type="text"
+        placeholder="Telegram"
+        value={formState.telegram}
+        onChange={(e) => {
+          setTelegram(e.currentTarget.value);
+        }}
+        selected={editState.telegramSelected}
+        setSelected={(selected) => {
+          setEditState((previous) => ({
+            ...previous,
+            telegramSelected: selected,
+          }));
+        }}
+      />
+      <InputWithSwitch
+        iconId="smartphone"
+        type="tel"
+        placeholder="SMS"
+        value={formState.phoneNumber}
+        onChange={(e) => {
+          setPhoneNumber(e.currentTarget.value);
+        }}
+        selected={editState.smsSelected}
+        setSelected={(selected) => {
+          setEditState((previous) => ({
+            ...previous,
+            smsSelected: selected,
+          }));
+        }}
+      />
       <AlertList />
+      {isDirty ? (
+        <div
+          className={classNames(
+            styles.saveSection,
+            "sticky bottom-0 left-0 right-0 flex flex-col p-3 md:p-5"
+          )}
+        >
+          <button>Save changes</button>
+        </div>
+      ) : null}
     </div>
   );
 };

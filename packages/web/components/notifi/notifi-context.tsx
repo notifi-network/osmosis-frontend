@@ -60,7 +60,6 @@ const NotifiContextProviderImpl: FunctionComponent<PropsWithChildren<{}>> = ({
         );
         return Buffer.from(result.signature, "base64");
       }}
-      enableCanary
     >
       <NotifiConfigContext
         type="SUBSCRIPTION_CARD"
