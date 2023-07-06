@@ -15,7 +15,7 @@ export const InputWithIcon: FunctionComponent<Props> = ({
 }) => {
   return (
     <>
-      <div className="mx-5 flex flex-row space-x-2 rounded-xl bg-osmoverse-700 p-2">
+      <div className="flex flex-row space-x-2 rounded-xl bg-osmoverse-700 p-2">
         <Icon id={iconId} width="24" height="24" />
         <input
           className={classNames(

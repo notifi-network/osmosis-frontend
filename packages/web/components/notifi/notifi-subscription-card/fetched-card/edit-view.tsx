@@ -95,14 +95,17 @@ export const EditView: FunctionComponent = () => {
         ? "targets"
         : null;
     } else {
+      let tgId = originalTelegram;
+      if (tgId.startsWith("@")) {
+        tgId = tgId.substring(1);
+      }
       return (editState.emailSelected && formState.email !== originalEmail) ||
         (!editState.emailSelected && originalEmail !== "") ||
         (editState.smsSelected &&
           formState.phoneNumber !== originalPhoneNunmber) ||
         (!editState.smsSelected && originalPhoneNunmber !== "") ||
-        (editState.telegramSelected &&
-          formState.telegram !== originalTelegram) ||
-        (!editState.telegramSelected && originalTelegram !== "")
+        (editState.telegramSelected && formState.telegram !== tgId) ||
+        (!editState.telegramSelected && tgId !== "")
         ? "targets"
         : null;
     }
@@ -116,6 +119,8 @@ export const EditView: FunctionComponent = () => {
     originalTelegram,
     toggleStates,
   ]);
+
+  console.log({ needsSave, originalTelegram, tg: formState.telegram });
 
   const onClickSave = useCallback(async () => {
     if (needsSave === null) {
@@ -259,6 +264,18 @@ export const EditView: FunctionComponent = () => {
     }
   }, [client, editState, setEmail, setPhoneNumber, setTelegram]);
 
+  const telegramVerificationLink = useMemo<string | undefined>(() => {
+    const targetGroup = client.data?.targetGroups?.find(
+      (it) => it.name === "Default"
+    );
+    const telegramTarget = targetGroup?.telegramTargets?.[0];
+    if (telegramTarget === undefined || telegramTarget.isConfirmed) {
+      return undefined;
+    }
+
+    return telegramTarget.confirmationUrl;
+  }, [client]);
+
   return (
     <div className="flex flex-col space-y-2">
       <p className="text-center text-caption font-caption text-osmoverse-200">
@@ -320,6 +337,17 @@ export const EditView: FunctionComponent = () => {
           }));
         }}
       />
+      {telegramVerificationLink !== undefined ? (
+        <p className="w-[342px] self-center text-caption font-caption">
+          <a
+            href={telegramVerificationLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Verify telegram
+          </a>
+        </p>
+      ) : null}
       <InputWithSwitch
         iconId="smartphone"
         type="tel"

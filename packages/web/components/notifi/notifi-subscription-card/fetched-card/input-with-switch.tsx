@@ -20,7 +20,8 @@ export const InputWithSwitch: FunctionComponent<Props> = ({
   return (
     <div className="flex flex-row justify-center">
       <Switch
-        className="flex-grow"
+        labelClassName="flex-grow"
+        containerClassName="flex-grow px-10 md:px-4"
         labelPosition="left"
         isOn={selected}
         onToggle={(toggled) => setSelected(toggled)}
