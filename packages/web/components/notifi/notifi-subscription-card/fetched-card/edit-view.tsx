@@ -5,7 +5,15 @@ import {
   useNotifiSubscriptionContext,
 } from "@notifi-network/notifi-react-card";
 import classNames from "classnames";
-import { FunctionComponent, useEffect, useMemo, useState } from "react";
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import { Button } from "~/components/buttons";
 
 import { AlertList } from "./alert-list";
 import styles from "./edit-view.module.css";
@@ -29,6 +37,7 @@ export const EditView: FunctionComponent = () => {
     email: originalEmail,
     phoneNumber: originalPhoneNunmber,
     telegramId: originalTelegram,
+    loading,
   } = useNotifiSubscriptionContext();
 
   const { formState, setEmail, setPhoneNumber, setTelegram } = useNotifiForm();
@@ -39,6 +48,25 @@ export const EditView: FunctionComponent = () => {
     telegramSelected: false,
     smsSelected: false,
   });
+
+  const onClickSave = useCallback(async () => {
+    const {
+      email: emailToSave,
+      phoneNumber: smsToSave,
+      telegram: telegramToSave,
+    } = formState;
+    const { emailSelected, telegramSelected, smsSelected } = editState;
+
+    try {
+      await client.ensureTargetGroup({
+        name: "Default",
+        emailAddress: emailSelected ? emailToSave : undefined,
+        phoneNumber: smsSelected ? smsToSave : undefined,
+        telegramId: telegramSelected ? telegramToSave : undefined,
+        discordId: undefined,
+      });
+    } catch (e: unknown) {}
+  }, [client, editState, formState]);
 
   useEffect(() => {
     const targetGroup = client.data?.targetGroups?.find(
@@ -202,7 +230,13 @@ export const EditView: FunctionComponent = () => {
             "sticky bottom-0 left-0 right-0 flex flex-col p-3 md:p-5"
           )}
         >
-          <button>Save changes</button>
+          <Button
+            mode="primary"
+            disabled={loading}
+            onClick={() => onClickSave()}
+          >
+            Save changes
+          </Button>
         </div>
       ) : null}
     </div>
