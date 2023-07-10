@@ -1,11 +1,12 @@
 import classNames from "classnames";
 import React, { ComponentProps, Fragment, FunctionComponent } from "react";
 
+import { useStore } from "~/stores";
+
 import { Icon } from "../assets";
 import { Button } from "../buttons";
 import IconButton from "../buttons/icon-button";
 import { Popover } from "../popover";
-import { useNotifiConfig } from "./notifi-config-context";
 import { useNotifiModalContext } from "./notifi-modal-context";
 import { NotifiSubscriptionCard } from "./notifi-subscription-card";
 
@@ -28,11 +29,17 @@ const NotifiIconButton: FunctionComponent<ComponentProps<typeof Button>> = (
 export const NotifiPopover: FunctionComponent<NotifiButtonProps> = ({
   className,
 }: NotifiButtonProps) => {
-  const context = useNotifiConfig();
+  const {
+    chainStore: {
+      osmosis: { chainId },
+    },
+    accountStore,
+  } = useStore();
+
   const { innerState: { onRequestBack, backIcon, title } = {} } =
     useNotifiModalContext();
 
-  if (context === undefined) {
+  if (!accountStore.getWallet(chainId)) {
     return <NotifiIconButton className={className} disabled />;
   }
 
@@ -71,7 +78,9 @@ export const NotifiPopover: FunctionComponent<NotifiButtonProps> = ({
             <>{title}</>
           )}
         </div>
-        <NotifiSubscriptionCard />
+        <div className="overflow-scroll">
+          <NotifiSubscriptionCard />
+        </div>
       </Popover.Panel>
     </Popover>
   );

@@ -24,7 +24,6 @@ import { useNotifiConfig } from "../../notifi-config-context";
 import { useNotifiModalContext } from "../../notifi-modal-context";
 import { AlertList } from "./alert-list";
 import styles from "./edit-view.module.css";
-import { InputWithSwitch } from "./input-with-switch";
 
 type TargetGroupFragment = Awaited<
   ReturnType<NotifiFrontendClient["getTargetGroups"]>
@@ -264,20 +263,20 @@ export const EditView: FunctionComponent = () => {
     }
   }, [client, editState, setEmail, setPhoneNumber, setTelegram]);
 
-  const telegramVerificationLink = useMemo<string | undefined>(() => {
-    const targetGroup = client.data?.targetGroups?.find(
-      (it) => it.name === "Default"
-    );
-    const telegramTarget = targetGroup?.telegramTargets?.[0];
-    if (telegramTarget === undefined || telegramTarget.isConfirmed) {
-      return undefined;
-    }
+  // DO NOT REMOVE: Might support target-subscription
+  // const telegramVerificationLink = useMemo<string | undefined>(() => {
+  //   const targetGroup = client.data?.targetGroups?.find((it) => it.name === "Default");
+  //   const telegramTarget = targetGroup?.telegramTargets?.[0];
+  //   if (telegramTarget === undefined || telegramTarget.isConfirmed) {
+  //     return undefined;
+  //   }
 
-    return telegramTarget.confirmationUrl;
-  }, [client]);
+  //   return telegramTarget.confirmationUrl;
+  // }, [client]);
 
   return (
     <div className="flex flex-col space-y-2">
+      {/* DO NOT REMOVE: Might support target-subscription next phase
       <p className="text-center text-caption font-caption text-osmoverse-200">
         Add destinations for your notifications.
       </p>
@@ -378,7 +377,7 @@ export const EditView: FunctionComponent = () => {
             smsSelected: selected,
           }));
         }}
-      />
+      /> */}
       <AlertList
         disabled={loading}
         toggleStates={toggleStates}

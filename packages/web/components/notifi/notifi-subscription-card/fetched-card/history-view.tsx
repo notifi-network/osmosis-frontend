@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 
-import { HistoryEmpty } from "./history-empty";
 import { HistoryRowData, HistoryRows } from "./history-rows";
 
 type CursorInfo = Readonly<{
@@ -17,7 +16,13 @@ type CursorInfo = Readonly<{
 
 const MESSAGES_PER_PAGE = 50;
 
-export const HistoryView: FunctionComponent = () => {
+interface Props {
+  setAlertEntry: React.Dispatch<
+    React.SetStateAction<HistoryRowData | undefined>
+  >;
+}
+
+export const HistoryView: FunctionComponent<Props> = ({ setAlertEntry }) => {
   const { client } = useNotifiClientContext();
 
   const [allNodes, setAllNodes] = useState<ReadonlyArray<HistoryRowData>>([]);
@@ -67,8 +72,9 @@ export const HistoryView: FunctionComponent = () => {
     }
   }, [getNotificationHistory]);
 
-  if (allNodes.length === 0) {
-    return <HistoryEmpty />;
-  }
-  return <HistoryRows rows={allNodes} />;
+  // if (allNodes.length === 0) {
+  //   return <HistoryEmpty />;
+  // }
+
+  return <HistoryRows rows={allNodes} setAlertEntry={setAlertEntry} />;
 };

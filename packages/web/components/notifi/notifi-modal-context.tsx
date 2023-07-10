@@ -5,12 +5,15 @@ import {
   PropsWithChildren,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
 import { ModalBaseProps } from "~/modals";
 
-type Location = "history" | "expired" | "signup" | "edit";
+import { useNotifiConfig } from "./notifi-config-context";
+
+type Location = "history" | "expired" | "signup" | "edit" | "historyDetail";
 
 interface NotifiModalFunctions {
   account: string;
@@ -28,13 +31,21 @@ export const NotifiModalContextProvider: FunctionComponent<
   const { setCardView } = useNotifiSubscriptionContext();
   const [innerState, setInnerState] = useState<Partial<ModalBaseProps>>({});
   const [location, setLocation] = useState<Location>("signup");
+  const config = useNotifiConfig();
+  const titles = useMemo(() => {
+    if (config.state === "fetched" && config.data.titles?.active) {
+      return config.data.titles;
+    }
+    return undefined;
+  }, [config]);
 
   useEffect(() => {
+    console.log(titles);
     switch (location) {
       case "history": {
         setCardView({ state: "history" });
         setInnerState({
-          title: "Notifications",
+          title: titles?.historyView || "Notifications",
           onRequestBack: () => {
             setLocation("edit");
           },
@@ -44,18 +55,28 @@ export const NotifiModalContextProvider: FunctionComponent<
       }
       case "expired": {
         setCardView({ state: "expired" });
-        setInnerState({ title: "Token expired" });
+        setInnerState({ title: titles?.expiredView || "Token expired" });
         break;
       }
       case "signup": {
         setCardView({ state: "signup" });
-        setInnerState({ title: "Get notifications" });
+        setInnerState({ title: titles?.signupView || "Get notifications" });
         break;
       }
       case "edit": {
         setCardView({ state: "edit" });
         setInnerState({
-          title: "Notification settings",
+          title: titles?.editView || "Notification settings",
+          onRequestBack: () => {
+            setLocation("history");
+          },
+        });
+        break;
+      }
+      case "historyDetail": {
+        setCardView({ state: "history" });
+        setInnerState({
+          title: titles?.alertDetailsView || "Notification Details",
           onRequestBack: () => {
             setLocation("history");
           },
@@ -63,7 +84,7 @@ export const NotifiModalContextProvider: FunctionComponent<
         break;
       }
     }
-  }, [location, setCardView]);
+  }, [location, setCardView, titles]);
 
   return (
     <NotifiModalContext.Provider value={{ account, innerState, setLocation }}>
