@@ -40,7 +40,6 @@ export const NotifiModalContextProvider: FunctionComponent<
   }, [config]);
 
   useEffect(() => {
-    console.log(titles);
     switch (location) {
       case "history": {
         setCardView({ state: "history" });

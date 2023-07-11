@@ -10,8 +10,6 @@ interface Props {
 export const HistoryDetailView: FunctionComponent<Props> = ({
   historyRowData,
 }) => {
-  console.log({ historyRowData });
-
   const { title, timestamp, message } = useMemo(() => {
     const isToday = dayjs(historyRowData.createdDate).isAfter(
       dayjs(Date.now()).subtract(1, "day")

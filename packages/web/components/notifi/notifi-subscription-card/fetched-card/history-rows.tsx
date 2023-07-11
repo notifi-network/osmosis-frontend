@@ -143,7 +143,6 @@ const HistoryRow: FunctionComponent<RowProps> = ({
               rowProps.popOutUrl = `/pool/${poolId}`;
             }
             if (poolEventDetailsJson.EventData.isTokenSwapped) {
-              console.log("poolEventDetailsJson", poolEventDetailsJson);
               const txHash =
                 poolEventDetailsJson?.EventData?.tokenSwapped?.transaction
                   ?.hash;
@@ -167,7 +166,6 @@ const HistoryRow: FunctionComponent<RowProps> = ({
                 parseInt(amountOut || "") > 999999 ? ">1,000,000" : amountOut
               } ${tokenOut}`;
               rowProps.emoji = "🔄";
-              console.log({ txHash, blockHeight, poolEventDetailsJson });
               txHash &&
                 (rowProps.popOutUrl = `https://www.mintscan.io/cosmos/txs/${txHash}?height=${blockHeight}`);
             }

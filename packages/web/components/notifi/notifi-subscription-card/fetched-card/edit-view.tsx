@@ -119,8 +119,6 @@ export const EditView: FunctionComponent = () => {
     toggleStates,
   ]);
 
-  console.log({ needsSave, originalTelegram, tg: formState.telegram });
-
   const onClickSave = useCallback(async () => {
     if (needsSave === null) {
       return;
