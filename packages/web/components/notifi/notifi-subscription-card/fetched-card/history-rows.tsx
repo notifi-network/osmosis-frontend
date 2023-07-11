@@ -24,7 +24,7 @@ export const HistoryRows: FunctionComponent<{
         return (
           <HistoryRow
             key={key}
-            /*{...rowProps}*/ row={row}
+            row={row}
             onCtaClick={() => setAlertEntry(row)}
             isModalCloseAfterClick={false}
           />
@@ -94,8 +94,9 @@ const HistoryRow: FunctionComponent<RowProps> = ({
         const jsonDetail: undefined | EventDetailsJson =
           row.detail.eventDetailsJson &&
           JSON.parse(row.detail.eventDetailsJson);
-        switch (row.detail.sourceName) {
-          case "pool":
+        const eventTypeId = jsonDetail?.NotifiData?.EventTypeId;
+        switch (eventTypeId) {
+          case EVENT_TYPE_ID.TRANSACTION_STATUSES:
             const poolEventDetailsJson = jsonDetail as StatusesEventDetailsJson;
             const poolId = poolEventDetailsJson?.EventData?.pool?.poolId;
 
@@ -105,8 +106,17 @@ const HistoryRow: FunctionComponent<RowProps> = ({
               const blockHeight =
                 poolEventDetailsJson?.EventData.assetTransfer?.transaction
                   .height;
+              const token =
+                poolEventDetailsJson?.EventData.assetTransfer?.denomMetadata
+                  .display;
+              const amount =
+                poolEventDetailsJson?.EventData.assetTransfer
+                  ?.transferAmountFormatted;
               rowProps.title = `Osmosis Outbound Transfer`;
               rowProps.emoji = "💸";
+              rowProps.message = `Amount: ${
+                parseInt(amount || "") > 999999 ? ">1,000,000" : amount
+              } ${token}`;
               txHash &&
                 (rowProps.popOutUrl = `https://www.mintscan.io/cosmos/txs/${txHash}?height=${blockHeight}`);
             }
@@ -116,23 +126,46 @@ const HistoryRow: FunctionComponent<RowProps> = ({
               const blockHeight =
                 poolEventDetailsJson?.EventData?.pool?.transaction?.height;
               rowProps.title = `Osmosis Pool Exited: ${poolId}`;
+              rowProps.message = `Pool ID: ${poolId}`;
               rowProps.emoji = "✅";
               txHash &&
                 (rowProps.popOutUrl = `https://www.mintscan.io/cosmos/txs/${txHash}?height=${blockHeight}`);
             }
             if (poolEventDetailsJson.EventData.isPoolJoined) {
-              rowProps.title = `Osmosis Pool Joined: ${poolId}`;
+              const tokens = poolEventDetailsJson?.EventData?.pool?.tokens.map(
+                (token) => token.denom
+              );
+              rowProps.title = `Osmosis Pool Joined`;
+              rowProps.message = `Token${
+                (tokens ?? []).length > 1 ? "s" : ""
+              }: ${tokens?.join(", ")}`;
               rowProps.emoji = "💵";
               rowProps.popOutUrl = `/pool/${poolId}`;
             }
             if (poolEventDetailsJson.EventData.isTokenSwapped) {
+              console.log("poolEventDetailsJson", poolEventDetailsJson);
               const txHash =
                 poolEventDetailsJson?.EventData?.tokenSwapped?.transaction
                   ?.hash;
               const blockHeight =
                 poolEventDetailsJson?.EventData?.tokenSwapped?.transaction
                   ?.height;
+              const amountIn =
+                poolEventDetailsJson?.EventData?.tokenSwapped
+                  ?.amountInFormatted;
+              const amountOut =
+                poolEventDetailsJson?.EventData?.tokenSwapped
+                  ?.amountOutFormatted;
+              const tokenIn =
+                poolEventDetailsJson?.EventData?.tokenSwapped?.denomIn;
+              const tokenOut =
+                poolEventDetailsJson?.EventData?.tokenSwapped?.denomOut;
               rowProps.title = `Osmosis Swap Confirmed`;
+              rowProps.message = ` ${
+                parseInt(amountIn || "") > 999999 ? ">1,000,000" : amountIn
+              } ${tokenIn} swapped to ${
+                parseInt(amountOut || "") > 999999 ? ">1,000,000" : amountOut
+              } ${tokenOut}`;
               rowProps.emoji = "🔄";
               console.log({ txHash, blockHeight, poolEventDetailsJson });
               txHash &&
@@ -140,7 +173,7 @@ const HistoryRow: FunctionComponent<RowProps> = ({
             }
             break;
 
-          case "transfer":
+          case EVENT_TYPE_ID.ASSETS_RECEIVED:
             const transferEventDetailsJson =
               jsonDetail as TransferEventDetailsJson;
             const txHash = transferEventDetailsJson?.EventData.transaction.hash;
@@ -148,12 +181,17 @@ const HistoryRow: FunctionComponent<RowProps> = ({
               transferEventDetailsJson?.EventData.transaction.height;
             const token =
               transferEventDetailsJson?.EventData.denomMetadata.display;
-            rowProps.title = `Asset Recieved: ${token}`;
+            const amount =
+              transferEventDetailsJson?.EventData.transferAmountFormatted;
+            rowProps.title = `Asset Received: ${token}`;
+            rowProps.message = `Amount: ${
+              parseInt(amount || "") > 999999 ? ">1,000,000" : amount
+            } ${token}`;
             rowProps.emoji = "💰";
             rowProps.popOutUrl = `https://www.mintscan.io/cosmos/txs/${txHash}?height=${blockHeight}`;
             break;
 
-          case "position":
+          case EVENT_TYPE_ID.POSITION_OUT_OF_RANGE:
             const positionEventDetailsJson =
               jsonDetail as PositionEventDetailsJson;
             const asset0 =
@@ -208,7 +246,7 @@ const HistoryRow: FunctionComponent<RowProps> = ({
         <div className="col-span-2 text-base">{title}</div>
 
         {isModalCloseAfterClick ? (
-          // TODO: Do not need to close modal if options are redirected to external page
+          // In case redirected to external page
           <Popover.Button>
             <div
               className="col-span-1 flex  cursor-pointer flex-row justify-end text-osmoverse-300"
@@ -314,26 +352,33 @@ type StatusesEventDetailsJson = {
       address: string;
       module: string;
       poolId: string;
-      tokens: Object[]; // TODO: define type
+      tokens: FormattedToken[];
       transaction: Transaction;
     };
     assetTransfer?: {
-      denomMetadata: DenomMetadata;
-      recipient: string;
-      recipientBalanceFormatted: string;
-      sender: string;
       transaction: Transaction;
+      recipient: string;
+      sender: string;
+      denomMetadata: DenomMetadata;
+      recipientBalanceFormatted: string;
+      transferAmountFormatted: string;
     };
     tokenSwapped?: TokenSwapped;
   };
-  NotifiData: Object;
+  NotifiData: Object & { EventTypeId: string };
+};
+
+type FormattedToken = {
+  amountFormatted: string;
+  denomMetadata: DenomMetadata;
+  denom: string;
 };
 
 type TransferEventDetailsJson = {
   unsubscribe_url: string;
   historyRowData: Object;
   AlertData: Object;
-  NotifiData: Object;
+  NotifiData: Object & { EventTypeId: string };
   EventData: {
     transaction: Transaction;
     recipient: string;
@@ -346,7 +391,7 @@ type TransferEventDetailsJson = {
 
 type PositionEventDetailsJson = {
   AlertData: Object;
-  NotifiData: Object;
+  NotifiData: Object & { EventTypeId: string };
   EventData: {
     position: UserPosition;
     address: string;
@@ -404,11 +449,17 @@ interface TokenSwapped {
   denomOut: string;
   amountInFormatted: string;
   amountOutFormatted: string;
-  denomInMetadata: DenomMetadata; //Same interface used in other events...
-  denomOutMetadata: DenomMetadata; //Same interface used in other events...
+  denomInMetadata: DenomMetadata;
+  denomOutMetadata: DenomMetadata;
 }
 
 enum PoolModule {
   CL = "CONCENTRATED LIQUIDITY",
   GAMM = "GENERIC AUTOMATED MARKET MAKER",
+}
+
+enum EVENT_TYPE_ID {
+  TRANSACTION_STATUSES = "efc0083ec881431f975a33a00ba48265",
+  ASSETS_RECEIVED = "e6bda7e9bca54619ae8f12658fa6efdb",
+  POSITION_OUT_OF_RANGE = "e69cbdc6fc6a4177b4041786194d0665",
 }
