@@ -4663,63 +4663,63 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@notifi-network/notifi-axios-adapter@^0.75.0":
-  version "0.75.0"
-  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-axios-adapter/-/notifi-axios-adapter-0.75.0.tgz#aa1ca1edbbb8eec3ac9a8dec5d99a50f5e9b4894"
-  integrity sha512-9OpBDDp5CXi4mJ778d08dK7LaeQWZbDnBfnNpM3R3y0MZ/axvsIvVCMNKGTK+NOA9r75cculI1csUwOVNVYwzQ==
+"@notifi-network/notifi-axios-adapter@^0.75.2-alpha.0+4286c00":
+  version "0.75.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-axios-adapter/-/notifi-axios-adapter-0.75.2-alpha.0.tgz#41f49d52b9fae413b86cf4d6d6478984dee41e7f"
+  integrity sha512-cUsnluVkxSakHbdHqHN77EexfKSo6btU4DucFfB0Cb1MXCw2FIUalsgoyDV5FhmmQ0f1KGAeo/K3GppGFZhBYg==
   dependencies:
-    "@notifi-network/notifi-axios-utils" "^0.75.0"
+    "@notifi-network/notifi-axios-utils" "^0.75.2-alpha.0+4286c00"
 
-"@notifi-network/notifi-axios-utils@^0.75.0":
-  version "0.75.0"
-  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-axios-utils/-/notifi-axios-utils-0.75.0.tgz#a102f3e2919e9011e9abca23f9ce1be5e46da2f9"
-  integrity sha512-sLmm2CQIi4/aB4lHsG67y3KOqjTWsZC4sTVKwid9s8RNIZNN0HW8iJOWidHZF63Fu0lOCoUGb6JFGuSeDsiYeA==
+"@notifi-network/notifi-axios-utils@^0.75.2-alpha.0+4286c00":
+  version "0.75.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-axios-utils/-/notifi-axios-utils-0.75.2-alpha.0.tgz#0197ed4d9d7ff9a4aea02e382cf762c98beb0131"
+  integrity sha512-aegZn+qbZrmMCcWFdJ+AWMWHgiuA+nLI/ABoaDd8t6C4UwROhmYw2UB0/DmvKyTECZKUk+r5Ylr5XeU8c4waKA==
 
-"@notifi-network/notifi-core@^0.75.0":
-  version "0.75.0"
-  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-core/-/notifi-core-0.75.0.tgz#b2cabc072a0fc05d93eb5a2cc01cd05e37b86395"
-  integrity sha512-HaeXNi2mayJld6U+Ycx471+llLEvysQaJAlRk2DPM51+dq5B9RjbCSgvHc31YlXW77tumECECwDzFppA7dWyCA==
+"@notifi-network/notifi-core@^0.75.2-alpha.0+4286c00":
+  version "0.75.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-core/-/notifi-core-0.75.2-alpha.0.tgz#fbeebca2afb4f6d9ffe735c8ae54497933a52a54"
+  integrity sha512-qTJpwCiJ78jwTtOztm8RVTEu3EkzdxXaoPSvq/w7DFmAJehMJSKt5cDe5tFE4y8BBvReXr4IdHdiK6NEQNpxpg==
   dependencies:
-    "@notifi-network/notifi-graphql" "^0.75.0"
+    "@notifi-network/notifi-graphql" "^0.75.2-alpha.0+4286c00"
 
-"@notifi-network/notifi-frontend-client@^0.75.0":
-  version "0.75.0"
-  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-frontend-client/-/notifi-frontend-client-0.75.0.tgz#81874fb1a2744bbed0d8244e819827b0eb8e9040"
-  integrity sha512-uql0POBZmbPOHj7Xk+kGutwqvtnMfBiWvq5DyHb4eCHfswgoz6e1p1sjg6zODFyCi8X/WZ0myRdBz3o5avEluA==
+"@notifi-network/notifi-frontend-client@0.75.2-alpha.0", "@notifi-network/notifi-frontend-client@^0.75.2-alpha.0+4286c00":
+  version "0.75.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-frontend-client/-/notifi-frontend-client-0.75.2-alpha.0.tgz#aad1eb1d6a40f885a99d94476dee11afc4abfbdc"
+  integrity sha512-8YFFdbR5KXVv1Xo9Ikg2F7kGdS8/b6aqGufOnVKStcsJgytveEfAQuShaSB6akxDUo0f8OSD73ypa0qwwxL/Cw==
   dependencies:
-    "@notifi-network/notifi-graphql" "^0.75.0"
+    "@notifi-network/notifi-graphql" "^0.75.2-alpha.0+4286c00"
     graphql-request "5.1.0"
     localforage "^1.10.0"
 
-"@notifi-network/notifi-graphql@^0.75.0":
-  version "0.75.0"
-  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-graphql/-/notifi-graphql-0.75.0.tgz#a53686fcaad0f16498a9e50df69c3bde1458351c"
-  integrity sha512-jSGNkUJh9NfO6PD0vssPd6UhMvMFQHXG/bVntdvilSBJBUqJjghrEgxdW2A3mWx+x8W2ikSlr9N/xTNIGID3lg==
+"@notifi-network/notifi-graphql@^0.75.2-alpha.0+4286c00":
+  version "0.75.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-graphql/-/notifi-graphql-0.75.2-alpha.0.tgz#581c09472d5c11e2f43de7cae5ab7191efafa54c"
+  integrity sha512-+2EG3Y6qK3wA4yLdZhbb3Mctmh4ukOJ5z75k8wTBUAKouBjGP0Jri8Is7pCN4Gc1LinEHjakZEcHfxkYYMN5TA==
   dependencies:
     graphql "^16.6.0"
     graphql-request "5.1.0"
     uuid "^8.3.2"
 
-"@notifi-network/notifi-react-card@^0.75.0":
-  version "0.75.0"
-  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-react-card/-/notifi-react-card-0.75.0.tgz#ce5be7e153cc92c648034054559950f7a73db64a"
-  integrity sha512-D7vKfQd1MU/A7hOOg2scHmRuCqKntErG0525P1Ip3E18OIAccMKKIBuRzu66TMjmUEjiJZmMYsZYs+he2cmA6A==
+"@notifi-network/notifi-react-card@0.75.2-alpha.0":
+  version "0.75.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-react-card/-/notifi-react-card-0.75.2-alpha.0.tgz#751971616bc3c8ce425760de2a5dfad5dca9cd77"
+  integrity sha512-VvcBhvvbXu9LgaR7ZdycPm5DfOl2gBgTlItekBRRQx4+l6Qc9ASipdHzgQbB0PEZkaIRlnWRh74sjJNah1Sd6w==
   dependencies:
-    "@notifi-network/notifi-frontend-client" "^0.75.0"
-    "@notifi-network/notifi-react-hooks" "^0.75.0"
+    "@notifi-network/notifi-frontend-client" "^0.75.2-alpha.0+4286c00"
+    "@notifi-network/notifi-react-hooks" "^0.75.2-alpha.0+4286c00"
     clsx "^1.2.1"
     date-fns "^2.29.3"
     libphonenumber-js "^1.10.13"
     react-virtuoso "^3.1.1"
 
-"@notifi-network/notifi-react-hooks@^0.75.0":
-  version "0.75.0"
-  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-react-hooks/-/notifi-react-hooks-0.75.0.tgz#f962298a6b87eab1a7e7d1e34ddf77278732a176"
-  integrity sha512-KQzMcVqeXM/bZwE0fhR+Vn9Cq9Td+W5XqjMVUd4JzT8dXcETxUq4OJMQJjpCh5410HHJRLEig7BXKsFhWWQS7Q==
+"@notifi-network/notifi-react-hooks@^0.75.2-alpha.0+4286c00":
+  version "0.75.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@notifi-network/notifi-react-hooks/-/notifi-react-hooks-0.75.2-alpha.0.tgz#5bae404e0add4e3cdbb672f69f22a508c779888f"
+  integrity sha512-pYaeUD0fLAiyth4t83NvPkn1eKAlNSjP6vNoF1CrlFZphggOtr37t8CwuPXOH50DWBrutRxLLeDHyfQE/5cYeA==
   dependencies:
-    "@notifi-network/notifi-axios-adapter" "^0.75.0"
-    "@notifi-network/notifi-axios-utils" "^0.75.0"
-    "@notifi-network/notifi-core" "^0.75.0"
+    "@notifi-network/notifi-axios-adapter" "^0.75.2-alpha.0+4286c00"
+    "@notifi-network/notifi-axios-utils" "^0.75.2-alpha.0+4286c00"
+    "@notifi-network/notifi-core" "^0.75.2-alpha.0+4286c00"
     axios "^0.26.0"
     localforage "^1.10.0"
     typedoc-plugin-missing-exports "^0.22.6"

@@ -146,6 +146,7 @@ export const EditView: FunctionComponent = () => {
           const alert = client.data?.alerts?.find(
             (it) => it?.name === row.name
           );
+
           const isEnabled = toggleStates[row.name] === true;
           if (alert === undefined && isEnabled) {
             let alertConfiguration = null;
@@ -172,6 +173,7 @@ export const EditView: FunctionComponent = () => {
               alertConfiguration = fusionToggleConfiguration({
                 fusionId,
                 fusionSourceAddress,
+                alertFrequency: row.alertFrequency,
               });
             } else if (row.type === "fusion") {
               const fusionId = resolveStringRef(
@@ -187,6 +189,7 @@ export const EditView: FunctionComponent = () => {
               alertConfiguration = fusionToggleConfiguration({
                 fusionId,
                 fusionSourceAddress,
+                alertFrequency: row.alertFrequency,
               });
             }
             alertConfigurations[row.name] = alertConfiguration;
